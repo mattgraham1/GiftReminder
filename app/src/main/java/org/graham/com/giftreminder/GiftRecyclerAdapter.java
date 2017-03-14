@@ -6,6 +6,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.TextView;
 
 import org.graham.com.giftreminder.models.Person;
 import org.joda.time.LocalDate;
@@ -14,7 +16,7 @@ import io.realm.OrderedRealmCollection;
 import io.realm.RealmRecyclerViewAdapter;
 
 public class GiftRecyclerAdapter extends RealmRecyclerViewAdapter<Person, GiftRecyclerAdapter.GiftViewHolder> {
-    private Activity activity;
+    private MainActivity activity;
 
     public GiftRecyclerAdapter(MainActivity activity, @Nullable OrderedRealmCollection<Person> data) {
         super(data, true);
@@ -30,15 +32,27 @@ public class GiftRecyclerAdapter extends RealmRecyclerViewAdapter<Person, GiftRe
 
     @Override
     public void onBindViewHolder(GiftViewHolder holder, int position) {
-
+        final Person person = getData().get(position);
+        holder.name.setText(person.getName());
+        holder.dob.setText(LocalDate.fromDateFields(person.getBithday()).toString());
+        holder.trashButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                activity.removePerson(person);
+            }
+        });
     }
 
     class GiftViewHolder extends RecyclerView.ViewHolder {
-        private String name;
-        private LocalDate birthday;
+        private TextView dob;
+        private TextView name;
+        private ImageButton trashButton;
 
         public GiftViewHolder(View itemView) {
             super(itemView);
+            name = (TextView) itemView.findViewById(R.id.textView_name);
+            dob = (TextView) itemView.findViewById(R.id.textView_dateOfBirth);
+            trashButton = (ImageButton) itemView.findViewById(R.id.imageButton_trash);
         }
     }
 }

@@ -4,18 +4,18 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import org.graham.com.giftreminder.models.Gift;
 import org.graham.com.giftreminder.models.Person;
 import org.joda.time.LocalDate;
-
-import java.util.Date;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
         initDatabaseWithDefaultInfo(realm);
 
         recyclerView = (RecyclerView) findViewById(R.id.recyclerview);
+        setUpRecyclerView();
     }
 
     private void listPersonsAndGifts(Realm realm) {
@@ -120,5 +121,19 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         realm.close();
+    }
+
+    private void setUpRecyclerView() {
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(new GiftRecyclerAdapter(this, realm.where(Person.class).findAll()));
+        recyclerView.setHasFixedSize(true);
+        recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+    }
+
+    public void removePerson(Person person) {
+        realm.beginTransaction();
+        RealmResults<Person> results = realm.where(Person.class).equalTo("name", person.getName()).findAll();
+        results.deleteAllFromRealm();
+        realm.commitTransaction();
     }
 }
